@@ -3,6 +3,7 @@ Shader "Unlit/草地"
     Properties
     {
         _WindTex ("风力贴图", 2D) = "white" {} // 控制风向和风力的贴图
+        _AlphaTex("遮罩贴图", 2D) = "white" {}
         _Smoothness ("Smoothness", Range(0, 1)) = 0.5 // 光滑度参数
         [Space(30)]
         _TopColor ("顶部颜色", Color) = (1,0.823,0.309,1) // 草顶部颜色
@@ -109,6 +110,8 @@ Shader "Unlit/草地"
             // 风力贴图采样器
             TEXTURE2D(_WindTex);
             SAMPLER(sampler_WindTex);
+            TEXTURE2D(_AlphaTex);
+            SAMPLER(sampler_AlphaTex);
 
             // 简单噪声函数（非连续）
             float SimpleNoise(float2 uv, float time)
@@ -213,6 +216,10 @@ Shader "Unlit/草地"
 
                 // 最终颜色 = 颜色 * 光照 * 阴影
                 float3 finalColor = baseColor * (diffuse + ambientColor) * max(shadow, 0.5);
+
+                float final_alpha = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, IN.uv).r;
+                if(final_alpha<0.5)
+                    discard;
 
                 return float4(finalColor, 1.0); // 输出颜色
             }
