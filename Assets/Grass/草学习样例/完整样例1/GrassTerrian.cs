@@ -122,11 +122,43 @@ public class GrassTerrian : MonoBehaviour
                 _grassBuffer = new ComputeBuffer(_grassCount,64 + 16);  //a：Count，缓冲区中元素的数量，在这里是储存了总共多少根草的信息
                                                                         //b：Stride，每个元素的大小（字节数）。64通常是一个4x4矩阵的大小
                                                                         // （16 x 4），16字节是一个float4向量的大小（4 x 4）
-                _grassBuffer.SetData(grassInfos);                       //使用数组中的值设置该缓冲区。
+                _grassBuffer.SetData(grassInfos);                       //使用grassInfos中的值设置该缓冲区。
                 return _grassBuffer;
             }
         }
 
+    private MaterialPropertyBlock _materialBlock;
+        
+    public void UpdateMaterialProperties(){
+        materialPropertyBlock.SetMatrix(ShaderProperties.TerrianLocalToWorld,transform.localToWorldMatrix);
+        materialPropertyBlock.SetBuffer(ShaderProperties.GrassInfos,grassBuffer);
+        materialPropertyBlock.SetVector(ShaderProperties.GrassQuadSize,_grassQuadSize);
+    }
+
+    public MaterialPropertyBlock materialPropertyBlock{
+        get{
+            if(_materialBlock == null){
+                _materialBlock = new MaterialPropertyBlock();
+            }
+            
+            return _materialBlock;
+        }
+    }
+
+    public struct GrassInfo{
+        public Matrix4x4 localToTerrian;
+        public Vector4 texParams;
+    }
+
+    private class ShaderProperties{
+
+        public static readonly int TerrianLocalToWorld = Shader.PropertyToID("_TerrianLocalToWorld");
+        public static readonly int GrassInfos = Shader.PropertyToID("_GrassInfos");
+        public static readonly int GrassQuadSize = Shader.PropertyToID("_GrassQuadSize");
+
+    }
+
+    
     // Start is called before the first frame update
     void Start()
     {
