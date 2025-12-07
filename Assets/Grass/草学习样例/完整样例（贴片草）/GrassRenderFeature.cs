@@ -29,18 +29,19 @@ public class GrassRenderFeature : ScriptableRendererFeature
 
             var cmd = CommandBufferPool.Get(NameOfCommandBuffer);
             try{
-                cmd.Clear();               
-                // foreach(var grassTerrian in GrassTerrian.actives){
-                //     if(!grassTerrian){
-                //         continue;
-                //     }
-                //     if(!grassTerrian.material){
-                //         continue;
-                //     }
-                //     grassTerrian.UpdateMaterialProperties();
-                //     cmd.DrawMeshInstancedProcedural(GrassUtil.unitMesh,0,grassTerrian.material,0,grassTerrian.grassCount,grassTerrian.materialPropertyBlock);
-                //     index ++;
-                // } 
+                cmd.Clear(); 
+                var index = 0;              
+                foreach(var grassTerrian in GrassTerrian.actives){
+                    if(!grassTerrian){
+                        continue;
+                    }
+                    if(!grassTerrian.material){
+                        continue;
+                    }
+                    grassTerrian.UpdateMaterialProperties();
+                    cmd.DrawMeshInstancedProcedural(GrassUtil.unitMesh,0,grassTerrian.material,0,grassTerrian.grassCount,grassTerrian.materialPropertyBlock);
+                    index ++;
+                } 
                 context.ExecuteCommandBuffer(cmd);
             }finally{
                 cmd.Release();

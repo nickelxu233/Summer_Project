@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class GrassTerrian : MonoBehaviour
 {
     //HashSet<T> 是 C# 中的高性能集合，只存储不重复的元素。
@@ -135,6 +136,7 @@ public class GrassTerrian : MonoBehaviour
         materialPropertyBlock.SetVector(ShaderProperties.GrassQuadSize,_grassQuadSize);
     }
 
+    //MaterialPropertyBlock使用之前需要先创建实例哦
     public MaterialPropertyBlock materialPropertyBlock{
         get{
             if(_materialBlock == null){
@@ -145,11 +147,37 @@ public class GrassTerrian : MonoBehaviour
         }
     }
 
+    //inspector菜单中放入选项，点击执行该方法。释放ComputeBuffer必须使用.Dispose()!
+    [ContextMenu("ForceRebuildGrassInfoBuffer")]
+    private void ForceUpdateGrassBuffer(){
+        if(_grassBuffer != null){
+            _grassBuffer.Dispose();
+            _grassBuffer = null;
+        }
+        UpdateMaterialProperties();
+    }
+
+    //加入HashSet集合
+    void OnEnable(){
+        _actives.Add(this);
+    }
+
+    //Disable的时候从HashSet中去除，顺便清空grassBuffer
+    void OnDisable(){
+        _actives.Remove(this);
+        if(_grassBuffer != null){
+            _grassBuffer.Dispose();
+            _grassBuffer = null;
+        }
+    }
+
+    //对接shader中的struct
     public struct GrassInfo{
         public Matrix4x4 localToTerrian;
         public Vector4 texParams;
     }
 
+    //对接shader中的ShaderProperties
     private class ShaderProperties{
 
         public static readonly int TerrianLocalToWorld = Shader.PropertyToID("_TerrianLocalToWorld");
@@ -157,17 +185,6 @@ public class GrassTerrian : MonoBehaviour
         public static readonly int GrassQuadSize = Shader.PropertyToID("_GrassQuadSize");
 
     }
-
+  
     
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
