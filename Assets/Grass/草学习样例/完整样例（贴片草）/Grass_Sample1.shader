@@ -245,7 +245,7 @@ Shader "URPLearn/Grass"
                 float4 color = float4(1,1,1,1);
                 float minDotLN = 0.2;
                 color.rgb = max(minDotLN,abs(dot(lightDir,normalWS))) * lightColor * diffuseColor.rgb * _BaseColor.rgb * mainLight.shadowAttenuation;
-                return color;
+                return diffuseColor * _BaseColor;
             }
 
             ENDHLSL
